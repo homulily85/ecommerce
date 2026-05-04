@@ -1,0 +1,6 @@
+[submodule "bank"]
+	path = bank
+	url = https://github.com/f4kkey/bank.git
+[submodule "shop"]
+	path = shop
+	url = https://github.com/homulily85/shop
