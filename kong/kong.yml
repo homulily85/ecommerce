@@ -1,0 +1,22 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  - name: bank
+    url: http://bank-nginx:80
+    connect_timeout: 60000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: bank-route
+        paths:
+          - /api/bank/
+  - name: shop
+    url: http://shop-nginx:80
+    connect_timeout: 60000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: shop-route
+        paths:
+          - /api/shop/
