@@ -4,3 +4,6 @@
 [submodule "shop"]
 	path = shop
 	url = https://github.com/homulily85/shop
+[submodule "auth-service"]
+	path = auth-service
+	url = https://github.com/f4kkey/auth-service.git
