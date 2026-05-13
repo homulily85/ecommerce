@@ -21,9 +21,6 @@ services:
 
   - name: shop-protected
     url: http://shop-nginx:80
-    connect_timeout: 60000
-    write_timeout: 60000
-    read_timeout: 60000
     routes:
       - name: shop-protected-route
         paths:
@@ -33,6 +30,21 @@ services:
             config:
               claims_to_verify:
                 - exp
+              key_claim_name: iss
+          - name: pre-function
+            config:
+              access:
+                - |
+                  local jwt = require "resty.jwt"
+                  local auth_header = kong.request.get_header("authorization")
+                  if auth_header then
+                      local token = auth_header:sub(8)
+                      local jwt_obj = jwt:load_jwt(token)
+                      if jwt_obj.payload then
+                          kong.service.request.set_header("X-User-Id", tostring(jwt_obj.payload.id))
+                          kong.service.request.set_header("X-User-Role", jwt_obj.payload.role)
+                      end
+                  end
 
   - name: shop-public
     url: http://shop-nginx:80/products
