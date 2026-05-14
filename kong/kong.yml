@@ -1,6 +1,13 @@
 _format_version: "3.0"
 _transform: true
 
+consumers:
+  - username: auth-service-user
+    jwt_secrets:
+      - key: "my-auth-issuer"
+        secret: "MY_SUPER_SECRET_KEY_123456789_MY_SUPER_SECRET_KEY_123456789"
+        algorithm: HS256
+
 services:
   - name: bank
     url: http://bank-nginx:80
@@ -12,15 +19,42 @@ services:
         paths:
           - /api/bank
 
-  - name: shop
+  - name: shop-protected
     url: http://shop-nginx:80
+    routes:
+      - name: shop-protected-route
+        paths:
+          - /api/shop
+        plugins:
+          - name: jwt
+            config:
+              claims_to_verify:
+                - exp
+              key_claim_name: iss
+          - name: pre-function
+            config:
+              access:
+                - |
+                  local jwt = require "resty.jwt"
+                  local auth_header = kong.request.get_header("authorization")
+                  if auth_header then
+                      local token = auth_header:sub(8)
+                      local jwt_obj = jwt:load_jwt(token)
+                      if jwt_obj.payload then
+                          kong.service.request.set_header("X-User-Id", tostring(jwt_obj.payload.id))
+                          kong.service.request.set_header("X-User-Role", jwt_obj.payload.role)
+                      end
+                  end
+
+  - name: shop-public
+    url: http://shop-nginx:80/products
     connect_timeout: 60000
     write_timeout: 60000
     read_timeout: 60000
     routes:
-      - name: shop-route
+      - name: shop-products-public-route
         paths:
-          - /api/shop
+          - /api/shop/products
 
   - name: auth
     url: http://auth-service:8080
@@ -31,7 +65,6 @@ services:
       - name: auth-route
         paths:
           - /api/auth
-
 plugins:
   - name: request-transformer
     config:
