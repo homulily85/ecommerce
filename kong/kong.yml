@@ -31,3 +31,17 @@ services:
       - name: auth-route
         paths:
           - /api/auth
+
+plugins:
+  - name: request-transformer
+    config:
+      add:
+        headers:
+          - "X-Kong-Api-Key:d4f8e2a1-7b3c-4f9e-a6d5-8c1b2e3f4a5d"
+# plugins:
+#   - name: prometheus
+#     config:
+#       status_code_metrics: true
+#       latency_metrics: true
+#       bandwidth_metrics: true
+#       upstream_health_metrics: true
