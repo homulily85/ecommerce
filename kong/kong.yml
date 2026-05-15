@@ -18,6 +18,27 @@ services:
       - name: bank-route
         paths:
           - /api/bank
+        plugins:
+          - name: jwt
+            config:
+              claims_to_verify:
+                - exp
+              key_claim_name: iss
+              anonymous: auth-service-user
+          - name: pre-function
+            config:
+              access:
+                - |
+                  local jwt = require "resty.jwt"
+                  local auth_header = kong.request.get_header("authorization")
+                  if auth_header then
+                      local token = auth_header:sub(8)
+                      local jwt_obj = jwt:load_jwt(token)
+                      if jwt_obj.payload then
+                          kong.service.request.set_header("X-User-Id", tostring(jwt_obj.payload.id))
+                          kong.service.request.set_header("X-User-Role", jwt_obj.payload.role)
+                      end
+                  end
 
   - name: shop-protected
     url: http://shop-nginx:80
