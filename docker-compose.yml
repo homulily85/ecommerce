@@ -16,7 +16,6 @@ services:
       - KONG_ADMIN_GUI_URL=http://localhost:8002
       - KONG_DNS_ORDER=A,CNAME
       - KONG_UNTRUSTED_LUA_SANDBOX_REQUIRES=resty.jwt
-      - KONG_DNS_ORDER=A,CNAME
     volumes:
       - ./kong/kong.yml:/etc/kong/kong.yml:ro
     healthcheck:
